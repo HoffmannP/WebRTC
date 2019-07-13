@@ -16,7 +16,7 @@ var dc1 = null
 
 // Since the same JS file contains code for both sides of the connection,
 // activedc tracks which of the two possible datachannel variables we're using.
-var activedc
+window.activedc = null
 
 var sdpConstraints = {
   optional: [],
@@ -101,7 +101,7 @@ function sendFile (data) {
   }
 }
 
-function sendMessage () {
+window.sendMessage = function () {
   if ($('#messageTextBox').val()) {
     var channel = new RTCMultiSession()
     writeToChatLog($('#messageTextBox').val(), 'text-success')
@@ -119,7 +119,7 @@ function setupDC1 () {
   try {
     var fileReceiver1 = new FileReceiver()
     dc1 = pc1.createDataChannel('test', { reliable: true })
-    activedc = dc1
+    window.activedc = dc1
     console.log('Created datachannel (pc1)')
     dc1.onopen = function (e) {
       console.log('data channel connect')
@@ -230,10 +230,6 @@ function handleAnswerFromPC2 (answerDesc) {
   pc1.setRemoteDescription(answerDesc)
 }
 
-function handleCandidateFromPC2 (iceCandidate) {
-  pc1.addIceCandidate(iceCandidate)
-}
-
 /* THIS IS BOB, THE ANSWERER/RECEIVER */
 
 var pc2 = new RTCPeerConnection(cfg, con)
@@ -244,7 +240,7 @@ pc2.ondatachannel = function (e) {
   var datachannel = e.channel || e // Chrome sends event, FF sends raw channel
   console.log('Received datachannel (pc2)', arguments)
   dc2 = datachannel
-  activedc = dc2
+  window.activedc = dc2
   dc2.onopen = function (e) {
     console.log('data channel connect')
     $('#waitForConnection').modal('hide')
@@ -289,10 +285,6 @@ pc2.onsignalingstatechange = onsignalingstatechange
 pc2.oniceconnectionstatechange = oniceconnectionstatechange
 pc2.onicegatheringstatechange = onicegatheringstatechange
 
-function handleCandidateFromPC1 (iceCandidate) {
-  pc2.addIceCandidate(iceCandidate)
-}
-
 pc2.onaddstream = handleOnaddstream
 pc2.onconnection = handleOnconnection
 
@@ -309,6 +301,6 @@ function getTimestamp () {
   return result
 }
 
-function writeToChatLog (message, messageType) {
-  document.getElementById('chatlog').innerHTML += '<p class="' + messageType + '">' + '[' + getTimestamp() + '] ' + message + '</p>'
+function writeToChatLog (message, messageype) {
+  document.getElementById('chatlog').innerHTML += '<p class="' + messageype + '">' + '[' + getTimestamp() + '] ' + message + '</p>'
 }

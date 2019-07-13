@@ -1,4 +1,4 @@
-/* global activedc, MouseEvent */
+/* global MouseEvent */
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/
  *  2013, Muaz Khan<muazkh>--[ github.com/muaz-khan ]
  */
@@ -15,7 +15,7 @@ var RTCMultiSession = function (options) {
       } else {
         data = JSON.stringify(message)
       }
-      activedc.send(data)
+      window.activedc.send(data)
     }
   }
 }
