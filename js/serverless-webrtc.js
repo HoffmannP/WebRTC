@@ -31,12 +31,12 @@ $('#getRemoteAnswer').modal('hide')
 $('#waitForConnection').modal('hide')
 $('#createOrJoin').modal('show')
 
-$('#createBtn').click(function () {
+document.querySelector('#createBtn').addEventListener('click', function () {
   $('#showLocalOffer').modal('show')
   createLocalOffer()
 })
 
-$('#joinBtn').click(function () {
+document.querySelector('#joinBtn').addEventListener('click', function () {
   navigator.getUserMedia = navigator.getUserMedia ||
                            navigator.webkitGetUserMedia ||
                            navigator.mozGetUserMedia ||
@@ -52,11 +52,11 @@ $('#joinBtn').click(function () {
   $('#getRemoteOffer').modal('show')
 })
 
-$('#offerSentBtn').click(function () {
+document.querySelector('#offerSentBtn').addEventListener('click', function () {
   $('#getRemoteAnswer').modal('show')
 })
 
-$('#offerRecdBtn').click(function () {
+document.querySelector('#offerRecdBtn').addEventListener('click', function () {
   var offer = $('#remoteOffer').val()
   var offerDesc = new RTCSessionDescription(JSON.parse(offer))
   console.log('Received remote offer', offerDesc)
@@ -65,18 +65,18 @@ $('#offerRecdBtn').click(function () {
   $('#showLocalAnswer').modal('show')
 })
 
-$('#answerSentBtn').click(function () {
+document.querySelector('#answerSentBtn').addEventListener('click', function () {
   $('#waitForConnection').modal('show')
 })
 
-$('#answerRecdBtn').click(function () {
+document.querySelector('#answerRecdBtn').addEventListener('click', function () {
   var answer = $('#remoteAnswer').val()
   var answerDesc = new RTCSessionDescription(JSON.parse(answer))
   handleAnswerFromPC2(answerDesc)
   $('#waitForConnection').modal('show')
 })
 
-$('#fileBtn').change(function () {
+document.querySelector('#fileBtn').addEventListener('change', function () {
   var file = this.files[0]
   console.log(file)
 
