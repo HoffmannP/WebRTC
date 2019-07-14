@@ -57,7 +57,7 @@ document.querySelector('#offerSentBtn').addEventListener('click', function () {
 })
 
 document.querySelector('#offerRecdBtn').addEventListener('click', function () {
-  var offer = $('#remoteOffer').val()
+  var offer = document.querySelector('#remoteOffer').value
   var offerDesc = new RTCSessionDescription(JSON.parse(offer))
   console.log('Received remote offer', offerDesc)
   writeToChatLog('Received remote offer', 'text-success')
@@ -70,7 +70,7 @@ document.querySelector('#answerSentBtn').addEventListener('click', function () {
 })
 
 document.querySelector('#answerRecdBtn').addEventListener('click', function () {
-  var answer = $('#remoteAnswer').val()
+  var answer = document.querySelector('#remoteAnswer').value
   var answerDesc = new RTCSessionDescription(JSON.parse(answer))
   handleAnswerFromPC2(answerDesc)
   $('#waitForConnection').modal('show')
@@ -102,14 +102,14 @@ function sendFile (data) {
 }
 
 window.sendMessage = function () {
-  if ($('#messageTextBox').val()) {
+  if (document.querySelector('#messageTextBox').value) {
     var channel = new RTCMultiSession()
-    writeToChatLog($('#messageTextBox').val(), 'text-success')
-    channel.send({ message: $('#messageTextBox').val() })
-    $('#messageTextBox').val('')
+    writeToChatLog(document.querySelector('#messageTextBox').value, 'text-success')
+    channel.send({ message: document.querySelector('#messageTextBox').value })
+    document.querySelector('#messageTextBox').value = ''
 
     // Scroll chat text area to the bottom on new input.
-    $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight)
+    this.document.querySelector('#chatlog').scrollTop = this.document.querySelector('#chatlog').scrollHeight
   }
 
   return false
@@ -124,7 +124,7 @@ function setupDC1 () {
     dc1.onopen = function (e) {
       console.log('data channel connect')
       $('#waitForConnection').modal('hide')
-      $('#waitForConnection').remove()
+      document.querySelector('#waitForConnection').remove()
     }
     dc1.onmessage = function (e) {
       console.log('Got message (pc1)', e.data)
@@ -144,7 +144,7 @@ function setupDC1 () {
         } else {
           writeToChatLog(data.message, 'text-info')
           // Scroll chat text area to the bottom on new input.
-          $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight)
+          document.querySelector('#chatlog').scrollTop = document.querySelector('#chatlog').scrollHeight
         }
       }
     }
@@ -181,7 +181,7 @@ function createLocalOffer () {
 pc1.onicecandidate = function (e) {
   console.log('ICE candidate (pc1)', e)
   if (e.candidate == null) {
-    $('#localOffer').html(JSON.stringify(pc1.localDescription))
+    document.querySelector('#localOffer').innerHTML = JSON.stringify(pc1.localDescription)
   }
 }
 
@@ -198,12 +198,12 @@ function handleOnconnection () {
   console.log('Datachannel connected')
   writeToChatLog('Datachannel connected', 'text-success')
   $('#waitForConnection').modal('hide')
-  // If we didn't call remove() here, there would be a race on pc2:
+  // If we don't call remove() here, there would be a race on pc2:
   //   - first onconnection() hides the dialog, then someone clicks
   //     on answerSentBtn which shows it, and it stays shown forever.
-  $('#waitForConnection').remove()
+  document.querySelector('#waitForConnection').remove()
   $('#showLocalAnswer').modal('hide')
-  $('#messageTextBox').focus()
+  document.querySelector('#messageTextBox').focus()
 }
 
 pc1.onconnection = handleOnconnection
@@ -244,7 +244,7 @@ pc2.ondatachannel = function (e) {
   dc2.onopen = function (e) {
     console.log('data channel connect')
     $('#waitForConnection').modal('hide')
-    $('#waitForConnection').remove()
+    document.querySelector('#waitForConnection').remove()
   }
   dc2.onmessage = function (e) {
     console.log('Got message (pc2)', e.data)
@@ -257,7 +257,7 @@ pc2.ondatachannel = function (e) {
       } else {
         writeToChatLog(data.message, 'text-info')
         // Scroll chat text area to the bottom on new input.
-        $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight)
+        document.querySelector('#chatlog').scrollTop = document.querySelector('#chatlog').scrollHeight
       }
     }
   }
@@ -277,7 +277,7 @@ function handleOfferFromPC1 (offerDesc) {
 pc2.onicecandidate = function (e) {
   console.log('ICE candidate (pc2)', e)
   if (e.candidate == null) {
-    $('#localAnswer').html(JSON.stringify(pc2.localDescription))
+    document.querySelector('#localAnswer').innerHTML = JSON.stringify(pc2.localDescription)
   }
 }
 
