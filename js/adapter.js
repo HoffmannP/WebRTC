@@ -1,10 +1,28 @@
-var RTCPeerConnection = null
-var getUserMedia = null
+// var RTCPeerConnection = null
 var attachMediaStream = null
 var reattachMediaStream = null
 var webrtcDetectedBrowser = null
 
-if (navigator.mozGetUserMedia) {
+if (window.MediaDevices && window.MediaDevices.getUserMedia) {
+  console.log('This appears to be a modern browser')
+
+  webrtcDetectedBrowser = 'modern'
+
+  // RTCPeerConnection = window.RTCPeerConnection
+
+  RTCSessionDescription = window.RTCSessionDescription
+
+  RTCIceCandidate = window.RTCIceCandidate
+
+  attachMediaStream = function (element, stream) {
+    element.src = stream
+  }
+
+  reattachMediaStream = function (to, from) {
+    to.src = from.src
+  }
+
+} else if (navigator.mozGetUserMedia) {
   console.log('This appears to be Firefox')
 
   webrtcDetectedBrowser = 'firefox'
@@ -17,10 +35,6 @@ if (navigator.mozGetUserMedia) {
 
   // The RTCIceCandidate object.
   RTCIceCandidate = mozRTCIceCandidate
-
-  // Get UserMedia (only difference is the prefix).
-  // Code from Adam Barth.
-  getUserMedia = navigator.mozGetUserMedia.bind(navigator)
 
   // Attach a media stream to an element.
   attachMediaStream = function (element, stream) {
@@ -50,10 +64,6 @@ if (navigator.mozGetUserMedia) {
 
   // The RTCPeerConnection object.
   RTCPeerConnection = webkitRTCPeerConnection
-
-  // Get UserMedia (only difference is the prefix).
-  // Code from Adam Barth.
-  getUserMedia = navigator.webkitGetUserMedia.bind(navigator)
 
   // Attach a media stream to an element.
   attachMediaStream = function (element, stream) {

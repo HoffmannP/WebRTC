@@ -37,18 +37,6 @@ document.querySelector('#createBtn').addEventListener('click', function () {
 })
 
 document.querySelector('#joinBtn').addEventListener('click', function () {
-  navigator.getUserMedia = navigator.getUserMedia ||
-                           navigator.webkitGetUserMedia ||
-                           navigator.mozGetUserMedia ||
-                           navigator.msGetUserMedia
-  navigator.getUserMedia({ video: true, audio: true }, function (stream) {
-    var video = document.getElementById('localVideo')
-    video.src = window.URL.createObjectURL(stream)
-    video.play()
-    pc2.addStream(stream)
-  }, function (error) {
-    console.log('Error adding stream to pc2: ' + error)
-  })
   $('#getRemoteOffer').modal('show')
 })
 
@@ -154,28 +142,17 @@ function setupDC1 () {
 }
 
 function createLocalOffer () {
-  console.log('video1')
-  navigator.getUserMedia = navigator.getUserMedia ||
-                           navigator.webkitGetUserMedia ||
-                           navigator.mozGetUserMedia ||
-                           navigator.msGetUserMedia
-  navigator.getUserMedia({ video: true, audio: true }, function (stream) {
-    var video = document.getElementById('localVideo')
-    video.src = window.URL.createObjectURL(stream)
-    video.play()
-    pc1.addStream(stream)
-    console.log(stream)
-    console.log('adding stream to pc1')
-    setupDC1()
-    pc1.createOffer(function (desc) {
+  setupDC1()
+  pc1.createOffer(
+    function (desc) {
       pc1.setLocalDescription(desc, function () {}, function () {})
       console.log('created local offer', desc)
     },
-    function () { console.warn("Couldn't create offer") },
-    sdpConstraints)
-  }, function (error) {
-    console.log('Error adding stream to pc1: ' + error)
-  })
+    function () {
+      console.warn("Couldn't create offer")
+    },
+    sdpConstraints
+  )
 }
 
 pc1.onicecandidate = function (e) {
