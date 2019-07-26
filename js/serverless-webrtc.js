@@ -1,4 +1,8 @@
-/* global $, RTCPeerConnection, RTCSessionDescription, RTCMultiSession, FileSender, FileReceiver, attachMediaStream */
+import Chat from './chat.js'
+import GUI from './gui.js'
+import SdpZip from './spdCompressor.js'
+
+/* global RTCPeerConnection, RTCSessionDescription, RTCMultiSession, FileReceiver, attachMediaStream */
 /* See also:
     http://www.html5rocks.com/en/tutorials/webrtc/basics/
     https://code.google.com/p/webrtc-samples/source/browse/trunk/apprtc/index.html
@@ -9,6 +13,43 @@
 var cfg = { 'iceServers': [ { 'url': 'stun:23.21.150.121' } ] }
 var con = { 'optional': [ { 'DtlsSrtpKeyAgreement': true } ] }
 
+var sdpConstraints = {
+  optional: [],
+  mandatory: {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+  }
+}
+
+let chat = new Chat('#chatlog')
+let gui = new GUI(connect, message)
+let caller = false
+
+function connect (sdp) {
+  if (sdp.length === 0) {
+    caller = true
+    return createLocalOffer()
+  }
+  let offer = new RTCSessionDescription({
+    'type': 'offer',
+    'sdp': SdpZip.decompress(sdp)
+  })
+  if (caller) {
+    chat.log('Received answer')
+    handleAnswerFromPC2(offer)
+  } else {
+    chat.log('Received offer')
+    handleOfferFromPC1(offer)
+  }
+}
+
+function message (message) {
+  var channel = new RTCMultiSession()
+  chat.write(message)
+  channel.send({ message: message })
+  chat.scrollToEnd()
+}
+
 /* THIS IS ALICE, THE CALLER/SENDER */
 
 var pc1 = new RTCPeerConnection(cfg, con)
@@ -18,106 +59,17 @@ var dc1 = null
 // activedc tracks which of the two possible datachannel variables we're using.
 window.activedc = null
 
-var sdpConstraints = {
-  optional: [],
-  mandatory: {
-    OfferToReceiveAudio: true,
-    OfferToReceiveVideo: true
-  }
-}
-
-$('#showLocalOffer').modal('hide')
-$('#getRemoteAnswer').modal('hide')
-$('#waitForConnection').modal('hide')
-$('#createOrJoin').modal('show')
-
-document.querySelector('#createBtn').addEventListener('click', function () {
-  $('#showLocalOffer').modal('show')
-  createLocalOffer()
-})
-
-document.querySelector('#joinBtn').addEventListener('click', function () {
-  $('#getRemoteOffer').modal('show')
-})
-
-document.querySelector('#offerSentBtn').addEventListener('click', function () {
-  $('#getRemoteAnswer').modal('show')
-})
-
-document.querySelector('#offerRecdBtn').addEventListener('click', function () {
-  var offer = document.querySelector('#remoteOffer').value
-  var offerDesc = new RTCSessionDescription(JSON.parse(offer))
-  console.log('Received remote offer', offerDesc)
-  writeToChatLog('Received remote offer', 'text-success')
-  handleOfferFromPC1(offerDesc)
-  $('#showLocalAnswer').modal('show')
-})
-
-document.querySelector('#answerSentBtn').addEventListener('click', function () {
-  $('#waitForConnection').modal('show')
-})
-
-document.querySelector('#answerRecdBtn').addEventListener('click', function () {
-  var answer = document.querySelector('#remoteAnswer').value
-  var answerDesc = new RTCSessionDescription(JSON.parse(answer))
-  handleAnswerFromPC2(answerDesc)
-  $('#waitForConnection').modal('show')
-})
-
-document.querySelector('#fileBtn').addEventListener('change', function () {
-  var file = this.files[0]
-  console.log(file)
-
-  sendFile(file)
-})
-
-function fileSent (file) {
-  console.log(file + ' sent')
-}
-
-function fileProgress (file) {
-  console.log(file + ' progress')
-}
-
-function sendFile (data) {
-  if (data.size) {
-    FileSender.send({
-      file: data,
-      onFileSent: fileSent,
-      onFileProgress: fileProgress
-    })
-  }
-}
-
-window.sendMessage = function () {
-  if (document.querySelector('#messageTextBox').value) {
-    var channel = new RTCMultiSession()
-    writeToChatLog(document.querySelector('#messageTextBox').value, 'text-success')
-    channel.send({ message: document.querySelector('#messageTextBox').value })
-    document.querySelector('#messageTextBox').value = ''
-
-    // Scroll chat text area to the bottom on new input.
-    this.document.querySelector('#chatlog').scrollTop = this.document.querySelector('#chatlog').scrollHeight
-  }
-
-  return false
-}
-
 function setupDC1 () {
   try {
-    var fileReceiver1 = new FileReceiver()
     dc1 = pc1.createDataChannel('test', { reliable: true })
     window.activedc = dc1
     console.log('Created datachannel (pc1)')
     dc1.onopen = function (e) {
-      console.log('data channel connect')
-      $('#waitForConnection').modal('hide')
-      document.querySelector('#waitForConnection').remove()
+      gui.startChat()
     }
     dc1.onmessage = function (e) {
       console.log('Got message (pc1)', e.data)
       if (e.data.size) {
-        fileReceiver1.receive(e.data, {})
       } else {
         if (e.data.charCodeAt(0) === 2) {
           // The first message we get from Firefox (but not Chrome)
@@ -128,11 +80,10 @@ function setupDC1 () {
         console.log(e)
         var data = JSON.parse(e.data)
         if (data.type === 'file') {
-          fileReceiver1.receive(e.data, {})
         } else {
-          writeToChatLog(data.message, 'text-info')
+          chat.info(data.message)
           // Scroll chat text area to the bottom on new input.
-          document.querySelector('#chatlog').scrollTop = document.querySelector('#chatlog').scrollHeight
+          chat.scrollToEnd()
         }
       }
     }
@@ -145,22 +96,25 @@ function createLocalOffer () {
   setupDC1()
   pc1.createOffer(
     function (desc) {
+      console.log('creating offer')
       pc1.setLocalDescription(desc, function () {}, function () {})
-      console.log('created local offer', desc)
     },
     function () {
-      console.warn("Couldn't create offer")
+      console.warn('Couldn\'t create offer')
     },
     sdpConstraints
   )
 }
 
-pc1.onicecandidate = function (e) {
-  console.log('ICE candidate (pc1)', e)
+function handleIcecandidate (e) {
+  console.log(`ICE candidate (${caller ? 'pc1' : 'pc2'})`)
   if (e.candidate == null) {
-    document.querySelector('#localOffer').innerHTML = JSON.stringify(pc1.localDescription)
+    let sdp = (caller ? pc1 : pc2).localDescription.sdp
+    gui.sdp = SdpZip.compress(sdp)
   }
 }
+
+pc1.onicecandidate = handleIcecandidate
 
 function handleOnaddstream (e) {
   console.log('Got remote stream', e.stream)
@@ -172,19 +126,12 @@ function handleOnaddstream (e) {
 pc1.onaddstream = handleOnaddstream
 
 function handleOnconnection () {
-  console.log('Datachannel connected')
-  writeToChatLog('Datachannel connected', 'text-success')
-  $('#waitForConnection').modal('hide')
-  // If we don't call remove() here, there would be a race on pc2:
-  //   - first onconnection() hides the dialog, then someone clicks
-  //     on answerSentBtn which shows it, and it stays shown forever.
-  document.querySelector('#waitForConnection').remove()
-  $('#showLocalAnswer').modal('hide')
-  document.querySelector('#messageTextBox').focus()
+  gui.startChat()
 }
 
 pc1.onconnection = handleOnconnection
 
+/*
 function onsignalingstatechange (state) {
   console.info('signaling state change:', state)
 }
@@ -196,14 +143,13 @@ function oniceconnectionstatechange (state) {
 function onicegatheringstatechange (state) {
   console.info('ice gathering state change:', state)
 }
-
 pc1.onsignalingstatechange = onsignalingstatechange
 pc1.oniceconnectionstatechange = oniceconnectionstatechange
 pc1.onicegatheringstatechange = onicegatheringstatechange
+*/
 
 function handleAnswerFromPC2 (answerDesc) {
-  console.log('Received remote answer: ', answerDesc)
-  writeToChatLog('Received remote answer', 'text-success')
+  chat.write('Received answer')
   pc1.setRemoteDescription(answerDesc)
 }
 
@@ -219,9 +165,7 @@ pc2.ondatachannel = function (e) {
   dc2 = datachannel
   window.activedc = dc2
   dc2.onopen = function (e) {
-    console.log('data channel connect')
-    $('#waitForConnection').modal('hide')
-    document.querySelector('#waitForConnection').remove()
+    gui.startChat()
   }
   dc2.onmessage = function (e) {
     console.log('Got message (pc2)', e.data)
@@ -232,9 +176,9 @@ pc2.ondatachannel = function (e) {
       if (data.type === 'file') {
         fileReceiver2.receive(e.data, {})
       } else {
-        writeToChatLog(data.message, 'text-info')
+        chat.info(data.message)
         // Scroll chat text area to the bottom on new input.
-        document.querySelector('#chatlog').scrollTop = document.querySelector('#chatlog').scrollHeight
+        chat.scrollToEnd()
       }
     }
   }
@@ -243,41 +187,19 @@ pc2.ondatachannel = function (e) {
 function handleOfferFromPC1 (offerDesc) {
   pc2.setRemoteDescription(offerDesc)
   pc2.createAnswer(function (answerDesc) {
-    writeToChatLog('Created local answer', 'text-success')
-    console.log('Created local answer: ', answerDesc)
+    console.log('creating answer')
     pc2.setLocalDescription(answerDesc)
   },
-  function () { console.warn("Couldn't create offer") },
+  function () { console.warn("Couldn't create answer") },
   sdpConstraints)
 }
 
-pc2.onicecandidate = function (e) {
-  console.log('ICE candidate (pc2)', e)
-  if (e.candidate == null) {
-    document.querySelector('#localAnswer').innerHTML = JSON.stringify(pc2.localDescription)
-  }
-}
-
+/*
 pc2.onsignalingstatechange = onsignalingstatechange
 pc2.oniceconnectionstatechange = oniceconnectionstatechange
 pc2.onicegatheringstatechange = onicegatheringstatechange
+*/
 
+pc2.onicecandidate = handleIcecandidate
 pc2.onaddstream = handleOnaddstream
 pc2.onconnection = handleOnconnection
-
-function getTimestamp () {
-  var totalSec = new Date().getTime() / 1000
-  var hours = parseInt(totalSec / 3600) % 24
-  var minutes = parseInt(totalSec / 60) % 60
-  var seconds = parseInt(totalSec % 60)
-
-  var result = (hours < 10 ? '0' + hours : hours) + ':' +
-    (minutes < 10 ? '0' + minutes : minutes) + ':' +
-    (seconds < 10 ? '0' + seconds : seconds)
-
-  return result
-}
-
-function writeToChatLog (message, messageype) {
-  document.getElementById('chatlog').innerHTML += '<p class="' + messageype + '">' + '[' + getTimestamp() + '] ' + message + '</p>'
-}

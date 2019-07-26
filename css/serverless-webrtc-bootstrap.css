@@ -1,7 +1,11 @@
-textarea { resize:none; }
+body {
+   margin-top: 20px;
+}
 
-video {
-   width:100%;
-   max-width:500px;
-   height:auto;
+.chat {
+   display: none;
+}
+
+textarea {
+   width: 97%;
 }
