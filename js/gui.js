@@ -1,13 +1,14 @@
+/* global EventTarget, CustomEvent */
+
 function timestamp () {
   return (new Date()).toTimeString().substr(0, 8)
 }
 
-export default class GUI {
-  constructor (connectCallback, messageCallback) {
-    this.callback = {
-      connect: connectCallback,
-      message: messageCallback
-    }
+export default class GUI extends EventTarget {
+  constructor (target) {
+    super()
+    this.target = target
+
     this.connect = document.querySelector('.connect')
     this.connect.querySelector('button').addEventListener('click', _ => this.clickConnect())
     this.descriptionBox = this.connect.querySelector('textarea')
@@ -17,38 +18,39 @@ export default class GUI {
     this.chat.querySelector('button').addEventListener('click', _ => this.sendMessage())
     this.messageBox = this.chat.querySelector('input[type="text"]')
     this.chatBox = this.chat.querySelector('.chatlog')
+
+    this.addEventListener('candidate', candidateEvent => (this.descriptionBox.value = JSON.stringify(candidateEvent.detail)))
+    this.addEventListener('connect', connectEvent => {
+      this.connect.style.display = 'none'
+      this.chat.style.display = 'initial'})
+    this.addEventListener('message', messageEvent => this._addChatLine(messageEvent.detail, 'info'))
+  }
+
+  trigger (name, detail) {
+    this.target.dispatchEvent(new CustomEvent(name, { bubbles: true, detail: detail }))
   }
 
   clickConnect () {
-    let description = this.descriptionBox.value
-    this.callback.connect(description)
+    const description = this.descriptionBox.value
+    try {
+      this.trigger('connect', JSON.parse(description))
+    } catch (e) {
+      this.trigger('connect')
+    }
     this.descriptionBox.value = ''
   }
 
-  setDescription (description) {
-    this.descriptionBox.value = JSON.stringify(description)
-  }
-
   sendMessage () {
-    let message = this.messageBox.value
+    const message = this.messageBox.value
     if (message.length) {
       this._addChatLine(message, 'success')
-      this.callback.message(message)
+      this.trigger('message', message)
     }
     this.messageBox.value = ''
-  }
-
-  receiveMessage (message) {
-    this._addChatLine(message, 'info')
   }
 
   _addChatLine (text, type) {
     this.chatBox.insertAdjacentHTML('beforeend', `<p class="text-${type}">[${timestamp()}] ${text}</p>`)
     this.chatBox.scrollTop = this.chatBox.scrollHeight
-  }
-
-  startChat () {
-    this.connect.style.display = 'none'
-    this.chat.style.display = 'initial'
   }
 }

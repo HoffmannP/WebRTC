@@ -1,12 +1,9 @@
-This project uses code from:
+Copyright 2019 Berengar W. Lehr <berengar.lehr@kompetenztest.de>.
 
-bootstrap.js: Copyright 2012 Twitter, Inc; Apache License, Version 2.0.
-jquery: Copyright jQuery Foundation and contributors; MIT License.
-webrtc-experiments: Copyright 2013 Muaz Khan; MIT License.
+Fork from serverless-webrtc@1.0.5 (https://github.com/cjb/serverless-webrtc)
+Copyright 2013 Chris Ball <chris@printf.net> (http://printf.net/).
 
-For the rest:
-
-Copyright 2013 Chris Ball <chris@printf.net>.
+Thanks to yetithefoot for the stun-server-list https://gist.github.com/yetithefoot/7592580  
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of serverless-webrtc and associated documentation files (the "Software"),

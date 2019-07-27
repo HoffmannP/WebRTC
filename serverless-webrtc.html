@@ -3,33 +3,21 @@
 <head>
     <meta charset="utf-8">
     <title>WebRTC p2p data</title>
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link href="css/bootstrap-responsive.css" rel="stylesheet">
     <link href="css/serverless-webrtc-bootstrap.css" rel="stylesheet">
 </head>
 <body>
-<!-- a href="https://github.com/cjb/serverless-webrtc/"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></!-->
 
-<div class="row connect">
-  <div class="col-md-6">
-      <textarea rows="15"></textarea>
-  </div>
-  <div class="col-md-6">
-    <button>create Connection</button>
-  </div>
+<a href="https://github.com/you"><img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_red_aa0000.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+
+<div class="connect">
+  <textarea rows="15"></textarea>
+  <button>create Connection</button>
 </div>
 
-<div class="row chat">
-  <div class="well">
-    <p class="head muted">
-      Serverless WebRTC chat demonstration.
-    </p>
-    <div class="text-info chatlog" style="height:350px; overflow:auto;">
-    </div>
-  </div>
+<div class="chat">
+  <div class="chatlog"></div>
   <input type="text" placeholder="Type your message here">
   <button type="submit" class="btn">Send message</button>
-  </form>
 </div>
 
 <script type='module' src="js/serverless-webrtc.js"></script>
