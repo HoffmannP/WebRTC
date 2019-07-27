@@ -22,8 +22,9 @@ export default class GUI extends EventTarget {
     this.addEventListener('candidate', candidateEvent => (this.descriptionBox.value = JSON.stringify(candidateEvent.detail)))
     this.addEventListener('connect', connectEvent => {
       this.connect.style.display = 'none'
-      this.chat.style.display = 'initial'})
-    this.addEventListener('message', messageEvent => this._addChatLine(messageEvent.detail, 'info'))
+      this.chat.style.display = 'initial'
+    })
+    this.addEventListener('message', messageEvent => this._addChatLine(messageEvent.detail, 'you'))
   }
 
   trigger (name, detail) {
@@ -43,14 +44,14 @@ export default class GUI extends EventTarget {
   sendMessage () {
     const message = this.messageBox.value
     if (message.length) {
-      this._addChatLine(message, 'success')
+      this._addChatLine(message, 'me')
       this.trigger('message', message)
     }
     this.messageBox.value = ''
   }
 
   _addChatLine (text, type) {
-    this.chatBox.insertAdjacentHTML('beforeend', `<p class="text-${type}">[${timestamp()}] ${text}</p>`)
+    this.chatBox.insertAdjacentHTML('beforeend', `<p class="from-${type}">[${timestamp()}] ${text}</p>`)
     this.chatBox.scrollTop = this.chatBox.scrollHeight
   }
 }

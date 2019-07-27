@@ -1,3 +1,11 @@
 .chat {
    display: none;
 }
+
+p.from-me {
+  color: green;
+}
+
+p.from-you {
+   color: blue;
+ }
