@@ -25,4 +25,4 @@ and then browse to [http://localhost:8001/](http://localhost:8001/).
 
 ### Contribution
 
-This project is heavily influenced on [https://github.com/cjb/serverless-webrtc/](Chris Ball's serverless-webrtc).
+This project is heavily influenced on [Chris Ball's serverless-webrtc](https://github.com/cjb/serverless-webrtc/).
