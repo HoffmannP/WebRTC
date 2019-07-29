@@ -23,7 +23,7 @@ Serving HTTP on 0.0.0.0 port 8001 ...
 
 and then browse to [http://localhost:8001/](http://localhost:8001/).
 
-You can also download the [minified all-included version](https://github.com/HoffmannP/index.min.html) and use it.
+You can also download the [minified all-included version](https://raw.githubusercontent.com/HoffmannP/WebRTC/master/index.min.html) and use it.
 
 ### Meta
 
