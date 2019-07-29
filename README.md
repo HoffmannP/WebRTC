@@ -1,5 +1,5 @@
 WebRTC
-=================
+======
 
 This is a tech demo of using WebRTC without a signaling server -- the 
 WebRTC offer/answer exchange is performed manually by the users, for example
@@ -8,7 +8,7 @@ involving a web server.
 
 This repository contains one web client:
 
-`serverless-webrtc.html` runs in any modern browser
+`index.html` runs in any modern browser
 
 ### For browsers:
 
@@ -25,7 +25,7 @@ and then browse to [http://localhost:8001/](http://localhost:8001/).
 
 ### Meta
 
-This project invites interested readers for a [code roaster](https://dev.to/hoffmann/code-roaster-webrtc-6a9)
+This project invites interested readers for a [code roaster](https://dev.to/hoffmann/code-roaster-webrtc-6a9).
 
 ### Contribution
 
