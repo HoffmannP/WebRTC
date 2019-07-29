@@ -23,6 +23,8 @@ Serving HTTP on 0.0.0.0 port 8001 ...
 
 and then browse to [http://localhost:8001/](http://localhost:8001/).
 
+You can also download the [minified all-included version](https://github.com/HoffmannP/index.min.html) and use it.
+
 ### Meta
 
 This project invites interested readers for a [code roaster](https://dev.to/hoffmann/code-roaster-webrtc-6a9).
