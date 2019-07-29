@@ -17,7 +17,7 @@ export default class GUI extends EventTarget {
     this.chat = document.querySelector('.chat')
     this.chat.querySelector('button').addEventListener('click', _ => this.sendMessage())
     this.messageBox = this.chat.querySelector('input[type="text"]')
-    this.chatBox = this.chat.querySelector('.chatlog')
+    this.chatBox = this.chat.querySelector('div')
 
     this.addEventListener('candidate', candidateEvent => (this.descriptionBox.value = JSON.stringify(candidateEvent.detail)))
     this.addEventListener('connect', connectEvent => {

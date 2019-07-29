@@ -1,5 +1,23 @@
+* {
+  box-sizing: border-box;
+}
+
+.connect textarea {
+  display: block;
+  width: calc(100vw - 16px);
+  height: calc(100vw - 16px - 11em);
+  margin-bottom: 1em;
+}
+
 .chat {
    display: none;
+}
+
+.chat div {
+  width: calc(100vw - 16px);
+  max-height: calc(100vw - 16px - 11em);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 p.from-me {
