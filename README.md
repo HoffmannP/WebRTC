@@ -23,6 +23,10 @@ Serving HTTP on 0.0.0.0 port 8001 ...
 
 and then browse to [http://localhost:8001/](http://localhost:8001/).
 
+### Meta
+
+This project invites interested readers for a [code roaster](https://dev.to/hoffmann/code-roaster-webrtc-6a9)
+
 ### Contribution
 
 This project is heavily influenced on [Chris Ball's serverless-webrtc](https://github.com/cjb/serverless-webrtc/).
