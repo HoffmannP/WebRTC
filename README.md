@@ -1,4 +1,4 @@
-serverless-webrtc
+WebRTC
 =================
 
 This is a tech demo of using WebRTC without a signaling server -- the 
