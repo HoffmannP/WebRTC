@@ -5,7 +5,7 @@
 .connect textarea {
   display: block;
   width: calc(100vw - 16px);
-  height: calc(100vw - 16px - 11em);
+  height: calc(100vh - 16px - 3em);
   margin-bottom: 1em;
 }
 
